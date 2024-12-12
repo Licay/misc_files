@@ -1,0 +1,14 @@
+digraph dependencies {
+  "not_exist" -> "libz.so"[color="red"]
+  "libz.so" -> "kexec"
+  "not_exist" -> "libdl.so"[color="red"]
+  "libdl.so" -> "kexec"
+  "not_exist" -> "libc.so"[color="red"]
+  "libc.so" -> "kexec"
+  "not_exist" -> "libz.so"[color="red"]
+  "libz.so" -> "vmcore-dmesg"
+  "not_exist" -> "libdl.so"[color="red"]
+  "libdl.so" -> "vmcore-dmesg"
+  "not_exist" -> "libc.so"[color="red"]
+  "libc.so" -> "vmcore-dmesg"
+}

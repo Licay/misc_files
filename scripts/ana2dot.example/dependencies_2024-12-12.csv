@@ -1,0 +1,13 @@
+程序名称,依赖库路径
+libz.so,not_exist
+kexec,libz.so
+libdl.so,not_exist
+kexec,libdl.so
+libc.so,not_exist
+kexec,libc.so
+libz.so,not_exist
+vmcore-dmesg,libz.so
+libdl.so,not_exist
+vmcore-dmesg,libdl.so
+libc.so,not_exist
+vmcore-dmesg,libc.so
