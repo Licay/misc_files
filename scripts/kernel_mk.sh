@@ -23,6 +23,7 @@ err_input()
 {
     echo "error input!"
     while true; do
+        sleep 1
     done
     exit
 }
@@ -85,8 +86,12 @@ P_CC="CC=$CC"
 # P_ST="STRIP=aarch64-linux-android-strip"
 # P_OBJ="STRIP=aarch64-linux-android-objdump"
 
-cp $CONFIG_FILE $OUT_DIR
+alias sync_config="cp $CONFIG_FILE $OUT_DIR"
 alias m="make $P0 $P1 $P_CC $P_LD $P_ST $P_OBJ"
+alias mmc="m menuconfig"
 alias ko="cd $WORK_DIR"
+alias mk="m -j`nproc`"
+
+sync_config
 
 echo "enjoy it!"

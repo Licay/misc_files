@@ -18,6 +18,9 @@ cifs //myfs/factory_disk                                  /mnt/factory_disk fsc,
 cifs //myfs/test                                          /mnt/test fsc,uid=1000,gid=1000,ro,$credentials \n
 nfs 172.16.11.12:/home/casey                              /mnt/service \n
 "
+if [ -f "$(dirname "$0")/mount.config" ]; then
+    source "$(dirname "$0")/mount.config"
+fi
 ######################## config end
 #########################################################################
 

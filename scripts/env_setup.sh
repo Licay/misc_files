@@ -10,11 +10,15 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 sudo apt update
-sudo apt install git gcc make repo vim adb fastboot minicom tree htop zsh remmina \
+sudo apt install git gcc make repo vim adb fastboot minicom tree htop zsh remmina universal-ctags \
 cifs-utils nfs-common \
 unrar python3 \
 gnome-tweaks gnome-shell-extension-manager \
 ibus-rime
+
+# for kernel build
+# sudo apt install \
+# libncurses-dev flex bison libssl-dev libelf-dev bc cpio xz-utils
 
 # 输入法 不要使用sudo
 git clone --depth 1 https://github.com/gaboolic/rime-frost ~/.config/ibus/rime
