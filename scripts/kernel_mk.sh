@@ -17,6 +17,8 @@
 ARCH=arm64
 CC=aarch64-linux-android26-clang
 CROSS_COMPILE=aarch64-linux-android-
+# CC=clang
+# CROSS_COMPILE=llvm-
 ########################################################
 
 err_input()
@@ -36,8 +38,8 @@ if [ ! -f $2 ]; then
 fi
 echo "start $1 check!"
 
-KER_DIR=`pwd`/$1
-CONFIG_FILE=`pwd`/$2
+KER_DIR=$(realpath $1)
+CONFIG_FILE=$(realpath $2)
 
 WORK_DIR=/tmp/kernel.`date +"%Y-%m-%d.%H_%m_%S"`
 OUT_DIR=$WORK_DIR/out

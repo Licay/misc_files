@@ -47,7 +47,7 @@ go_repo() {
 
 # if remove or dirty the project's .git directory, this command will fix it
 # the repo directory is needed
-fix_project() {
+repo_fix_project() {
     if [ ! -d "$1" ]; then
         echo "Directory $1 does not exist."
         mkdir -p "$1"
@@ -77,4 +77,25 @@ fix_project() {
     repo start $BRANCH $PRJ
 
     cd "$TMP1"
+}
+
+# go to the project real directory
+repo_go_project() {
+    PRJ=$1
+    go_repo
+    BASE=`pwd`
+
+    cd .repo/projects
+    for config in $(find . -name "config"); do
+        if grep -q "$PRJ" "$config"; then
+            PRJ_DIR=$config
+            # echo "Found '$PRJ' in $config"
+            break;
+        fi
+    done
+
+    PRJ_DIR=${PRJ_DIR%.git/config}
+    PRJ_DIR=$BASE/$PRJ_DIR
+    echo $PRJ_DIR
+    cd $PRJ_DIR
 }
