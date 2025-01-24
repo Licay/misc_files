@@ -49,12 +49,16 @@ if [ "$ACTION" == "setup" ]; then
 
     # 创建缓存元数据设备
     sudo dmsetup create cache_meta --table "0 $(blockdev --getsize $SSD1) linear $SSD1 0"
-    # 第一次使用需要清空缓存元数据设备
-    # sudo dd if=/dev/zero of=/dev/mapper/cache_meta
+    if [ $FIRST ]; then
+        sudo dd if=/dev/zero of=/dev/mapper/cache_meta # 第一次或修复，需要
+        echo "clean mate data!"
+    # exit 0
+    fi
+
     # 创建缓存设备
     sudo dmsetup create cache --table "0 $(blockdev --getsize $SSD2) linear $SSD2 0"
     # 创建缓存映射设备
-    sudo dmsetup create cache_dev --table "0 $(blockdev --getsize $HDD) cache $CACHE_META $CACHE $HDD 512 1 writeback default 0"
+    sudo dmsetup create cache_dev --table "0 $(blockdev --getsize $HDD) cache $CACHE_META $CACHE $HDD 1024 1 writeback default 0"
     echo "dm-cache setup completed."
 
 # 映射 (run)
@@ -87,3 +91,4 @@ else
     echo "Invalid action: $ACTION"
     echo "Usage: $0 {setup|run|exit} [mount_point]"
     exit 1
+fi
