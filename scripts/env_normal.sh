@@ -1,6 +1,8 @@
 #!/bin/zsh
 
-alias have_env_normal="echo 'you are using env_normal.sh'"
+THIS=`realpath $0`
+NAME=`basename $THIS`
+alias have_$NAME="echo 'you are using' $THIS"
 
 export LTO=thin
 
@@ -20,11 +22,11 @@ reboot() {
     if [ ! -z $1 ]; then
         echo "reboot now!"
         systemctl reboot
-        exit 0
+        return 0
     fi
 
     echo "do not support!"
-    exit -1
+    return -1
 }
 
 ########################################################################
@@ -99,3 +101,24 @@ repo_go_project() {
     echo $PRJ_DIR
     cd $PRJ_DIR
 }
+
+export ENV_HELP="support functions:"
+export ENV_HELP=$ENV_HELP"
+    - adb
+        - pko: adb push to /vendor_dlkm/lib/modules
+        - aremount: adb root and remount
+        - ashell: adb shell
+        - apush: adb push
+    - fastboot
+        - frf: fastboot reboot fastboot
+        - ff: fastboot --disable-verity flash
+    - repo
+        - go_repo: navigate to the root of the repo
+        - repo_fix_project: fix the project's .git directory
+        - repo_go_project: go to the project's real directory
+"
+
+help() {
+    echo "$ENV_HELP"
+}
+alias h="help"
