@@ -9,9 +9,33 @@ export LTO=thin
 alias frf="fastboot reboot fastboot"
 alias ff="fastboot --disable-verity flash"
 
-alias aremount="adb root; adb remount"
-alias ashell="adb shell"
+aroot() {
+    while true; do
+        adb root
+        if [ $? -eq 0 ]; then
+            break
+        fi
+        sleep 1
+    done
+}
+
+ashell() {
+    echo
+    while true; do
+        # 回到上一行开头并清除当前行
+        echo -en "\033[1A\033[K"
+        adb shell
+        if [ $? -eq 0 ]; then
+            break
+        fi
+        sleep 1
+    done
+}
+
+alias aremount="aroot; adb remount"
+# alias ashell="adb shell"
 alias apush="adb push"
+alias adevices="adb devices"
 
 pko() {
     adb push $1 /vendor_dlkm/lib/modules
@@ -109,6 +133,8 @@ export ENV_HELP=$ENV_HELP"
         - aremount: adb root and remount
         - ashell: adb shell
         - apush: adb push
+        - aroot: adb root
+        - adevices: adb devices
     - fastboot
         - frf: fastboot reboot fastboot
         - ff: fastboot --disable-verity flash
