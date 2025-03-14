@@ -149,6 +149,19 @@ cp_code() {
     done
 }
 
+sync_env() {
+    if [ ! -e $THIS ]
+        return -1
+
+    dir=`dirname $THIS`
+
+    cd $dir
+    git pull
+    cd -
+
+    . $THIS
+}
+
 export ENV_HELP="support functions:"
 export ENV_HELP=$ENV_HELP"
     - adb
@@ -171,6 +184,7 @@ export ENV_HELP=$ENV_HELP"
         - cp_code: copy code to a file
         - have_env_normal: show the current script
         - help: show this help
+        - sync_env: pull this git
 "
 
 help() {
