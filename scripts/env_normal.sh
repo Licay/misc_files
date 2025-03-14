@@ -36,6 +36,7 @@ alias aremount="aroot; adb remount"
 # alias ashell="adb shell"
 alias apush="adb push"
 alias adevices="adb devices"
+alias areboot="adb reboot"
 
 pko() {
     adb push $1 /vendor_dlkm/lib/modules
@@ -126,6 +127,28 @@ repo_go_project() {
     cd $PRJ_DIR
 }
 
+# copy code to a file
+# $1...: output file
+# $... : file type
+cp_code() {
+    if [ $# -lt 2 ]; then
+        echo "error input!"
+        echo "usage: cp_code output_file file_type1 file_type2 ..."
+        return -1
+    fi
+
+    out=$1
+    echo > $out
+
+    for type in ${@:2}; do
+        find . -type f -name "*$type" | while read -r file; do
+            echo "[文件名：$file]"
+            echo "[文件名：$file]" >> $out
+            cat "$file" >> $out
+        done
+    done
+}
+
 export ENV_HELP="support functions:"
 export ENV_HELP=$ENV_HELP"
     - adb
@@ -135,6 +158,7 @@ export ENV_HELP=$ENV_HELP"
         - apush: adb push
         - aroot: adb root
         - adevices: adb devices
+        - areboot: adb reboot
     - fastboot
         - frf: fastboot reboot fastboot
         - ff: fastboot --disable-verity flash
@@ -142,6 +166,11 @@ export ENV_HELP=$ENV_HELP"
         - go_repo: navigate to the root of the repo
         - repo_fix_project: fix the project's .git directory
         - repo_go_project: go to the project's real directory
+    - others
+        - reboot: for safe
+        - cp_code: copy code to a file
+        - have_env_normal: show the current script
+        - help: show this help
 "
 
 help() {
