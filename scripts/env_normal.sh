@@ -141,7 +141,7 @@ cp_code() {
     echo > $out
 
     for type in ${@:2}; do
-        find . -type f -name "*$type" | while read -r file; do
+        find . -type f -name "$type" | while read -r file; do
             echo "[文件名：$file]"
             echo "[文件名：$file]" >> $out
             cat "$file" >> $out
