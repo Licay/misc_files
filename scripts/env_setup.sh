@@ -9,6 +9,9 @@ if [ "$(id -u)" -eq 0 ]; then
   exit 1
 fi
 
+LOCAL_DIR=~/.local/bin
+mkdir -p $LOCAL_DIR
+
 sudo apt update
 sudo apt install git gcc make repo vim adb fastboot minicom tree htop zsh remmina universal-ctags \
 cifs-utils nfs-common \
@@ -60,3 +63,9 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 # set user group
 sudo usermod -aG dialout $USER  # for serial port
+
+# snipaste
+wget https://dl.snipaste.com/linux-cn -O $LOCAL_DIR/Snipaste.AppImage
+# wget https://download.snipaste.com/archives/Snipaste-2.10.6-x86_64.AppImage -O $LOCAL_DIR/Snipaste.AppImage
+chmod +x $LOCAL_DIR/Snipaste.AppImage
+$LOCAL_DIR/Snipaste.AppImage &
