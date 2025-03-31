@@ -150,8 +150,9 @@ cp_code() {
 }
 
 sync_env() {
-    if [ ! -e $THIS ]
+    if [ ! -e $THIS ]; then
         return -1
+    fi
 
     dir=`dirname $THIS`
 
