@@ -9,36 +9,39 @@ export LTO=thin
 alias frf="fastboot reboot fastboot"
 alias ff="fastboot --disable-verity flash"
 
-aroot() {
+adb_waiting_dev() {
     while true; do
-        adb root
+        # 检查是否有设备连接
+        adb devices | grep -q "device$"
         if [ $? -eq 0 ]; then
             break
         fi
-        sleep 1
+        sleep 0.5
     done
 }
 
-ashell() {
-    echo
-    while true; do
-        # 回到上一行开头并清除当前行
-        echo -en "\033[1A\033[K"
-        adb shell
-        if [ $? -eq 0 ]; then
-            break
-        fi
-        sleep 1
-    done
-}
+# ashell() {
+#     echo
+#     while true; do
+#         # 回到上一行开头并清除当前行
+#         echo -en "\033[1A\033[K"
+#         adb shell "$@"
+#         if [ $? -eq 0 ]; then
+#             break
+#         fi
+#         sleep 1
+#     done
+# }
 
+alias aroot="adb_waiting_dev; adb root"
 alias aremount="aroot; adb remount"
-# alias ashell="adb shell"
-alias apush="adb push"
+alias ashell="adb_waiting_dev; adb shell"
+alias apush="adb_waiting_dev; adb push"
 alias adevices="adb devices"
-alias areboot="adb reboot"
+alias areboot="adb_waiting_dev; adb reboot"
 
 pko() {
+    adb_waiting_dev
     adb push $1 /vendor_dlkm/lib/modules
 }
 
