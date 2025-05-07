@@ -15,7 +15,7 @@ mkdir -p $LOCAL_DIR
 sudo apt update
 sudo apt install git gcc make repo vim adb fastboot minicom tree htop zsh remmina universal-ctags \
 cifs-utils nfs-common \
-unrar python3 \
+unrar python3 filezilla \
 gnome-tweaks gnome-shell-extension-manager \
 ibus-rime
 
@@ -25,6 +25,7 @@ ibus-rime
 
 # 输入法 不要使用sudo
 git clone --depth 1 https://github.com/gaboolic/rime-frost ~/.config/ibus/rime
+# 以下为自用配置，需要更改自行打开~/.config/ibus/rime/default.yaml查看
 RIME_DEF_CONFIG=~/.config/ibus/rime/default.yaml
 sed -i '/schema:/ s/^/#/' $RIME_DEF_CONFIG
 sed -i '/schema_list:/a\  - schema: double_pinyin          # 自然码双拼' $RIME_DEF_CONFIG
@@ -46,15 +47,18 @@ sudo apt update
 
 sudo apt install code \
 microsoft-edge-stable \
-snap
+snap flatpak
 
 # sudo snap install bytedance-feishu-stable
 sudo snap install onlyoffice-desktopeditors
-sudo snap install obsidian --classic
+# sudo snap install obsidian --classic
+flatpak install flathub md.obsidian.Obsidian
+# flatpak install flathub cn.feishu.Feishu    # 不显示通知
 
 # oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
+# wine-hq
 # sudo apt install dirmngr ca-certificates curl software-properties-common apt-transport-https
 # sudo dpkg --add-architecture i386
 # curl -s https://dl.winehq.org/wine-builds/winehq.key | sudo gpg --dearmor | sudo tee /usr/share/keyrings/winehq.gpg > /dev/null
@@ -68,4 +72,5 @@ sudo usermod -aG dialout $USER  # for serial port
 wget https://dl.snipaste.com/linux-cn -O $LOCAL_DIR/Snipaste.AppImage
 # wget https://download.snipaste.com/archives/Snipaste-2.10.6-x86_64.AppImage -O $LOCAL_DIR/Snipaste.AppImage
 chmod +x $LOCAL_DIR/Snipaste.AppImage
+$LOCAL_DIR/Snipaste.AppImage exit
 $LOCAL_DIR/Snipaste.AppImage &

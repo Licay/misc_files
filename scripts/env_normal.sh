@@ -10,14 +10,21 @@ alias frf="fastboot reboot fastboot"
 alias ff="fastboot --disable-verity flash"
 
 adb_waiting_dev() {
-    while true; do
-        # 检查是否有设备连接
-        adb devices | grep -q "device$"
-        if [ $? -eq 0 ]; then
-            break
-        fi
-        sleep 0.5
-    done
+    # 检查是否有设备连接
+    adb devices | grep -q "device$"
+    if [ $? -ne 0 ]; then
+        # 如果没有设备连接，则等待设备连接
+        echo -n "waiting ."
+        while true; do
+            echo -n "."
+            adb devices | grep -q "device$"
+            if [ $? -eq 0 ]; then
+                echo
+                break
+            fi
+            sleep 0.5
+        done
+    fi
 }
 
 # ashell() {
