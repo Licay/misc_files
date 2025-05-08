@@ -48,6 +48,7 @@ Date:   Wed May 7 21:39:43 2025 +0200
 QEMU emulator version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.4)
 Copyright (c) 2003-2023 Fabrice Bellard and the QEMU Project developers
 
+-> % tar -xf ./arm64_package4qemu.tar.gz
 -> % ./start-qemu.sh
 ... ...
 deleting routers
