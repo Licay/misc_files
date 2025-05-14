@@ -28,7 +28,8 @@ git clone --depth 1 https://github.com/gaboolic/rime-frost ~/.config/ibus/rime
 # 以下为自用配置，需要更改自行打开~/.config/ibus/rime/default.yaml查看
 RIME_DEF_CONFIG=~/.config/ibus/rime/default.yaml
 sed -i '/schema:/ s/^/#/' $RIME_DEF_CONFIG
-sed -i '/schema_list:/a\  - schema: double_pinyin          # 自然码双拼' $RIME_DEF_CONFIG
+sed -i '/schema_list:/a\  - schema: double_pinyin          # 自然码双拼\
+  - schema: rime_ice               # 雾凇拼音（全拼）' $RIME_DEF_CONFIG
 sed -i 's/page_size: [0-9]*/page_size: 6/' $RIME_DEF_CONFIG
 
 # docker

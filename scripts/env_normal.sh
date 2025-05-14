@@ -173,6 +173,16 @@ sync_env() {
     . $THIS
 }
 
+# rime
+rime_update() {
+    cd ~/.config/ibus/rime
+    cp default.yaml default.yaml.old
+    git checkout .
+    git pull --depth 1
+    cp default.yaml.old default.yaml
+    ibus restart
+}
+
 export ENV_HELP="support functions:"
 export ENV_HELP=$ENV_HELP"
     - adb
@@ -190,6 +200,8 @@ export ENV_HELP=$ENV_HELP"
         - go_repo: navigate to the root of the repo
         - repo_fix_project: fix the project's .git directory
         - repo_go_project: go to the project's real directory
+    - rime
+        - rime_update: update rime register
     - others
         - reboot: for safe
         - cp_code: copy code to a file
