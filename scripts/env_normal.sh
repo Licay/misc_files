@@ -9,15 +9,61 @@ export LTO=thin
 alias frf="fastboot reboot fastboot"
 alias ff="fastboot --disable-verity flash"
 
+export ADB_SN
+adb_sn_set() {
+    local link_dev=($(adb devices | grep -v "List" | grep "device$" | awk '{print $1}'))
+    local dev_count=${#link_dev[@]}
+
+    if [ $dev_count -eq 1 ]; then
+        ADB_SN="${link_dev[1]}"
+        echo "set ADB_SN to $ADB_SN"
+        return 0
+    fi
+
+    echo "choose adb serial number:"
+    cnt=0
+    for i in $link_dev; do
+        cnt=$((cnt + 1))
+        echo "$cnt: $i"
+    done
+    echo "other: clear"
+    echo -n "input: "
+    read -r num
+
+    if [ "$num" = "" ]; then
+        ADB_SN=""
+    else
+        ADB_SN=`echo $link_dev | awk -v num=$num '{print $num}'`
+    fi
+    echo "set ADB_SN to $ADB_SN"
+}
+
+adb_sn() {
+    if [ "$ADB_SN" = "" ]; then
+        adb_sn_set
+        if [ "$ADB_SN" = "" ]; then
+            adb $@
+            return 0
+        fi
+    fi
+
+    adb -s $ADB_SN $@
+}
+
 adb_waiting_dev() {
     # 检查是否有设备连接
-    adb devices | grep -q "device$"
+    ADB_DEV="device$"
+    if [ "$ADB_SN" != "" ]; then
+        ADB_DEV=$ADB_SN
+    fi
+
+    adb devices | grep -q "$ADB_DEV"
     if [ $? -ne 0 ]; then
         # 如果没有设备连接，则等待设备连接
         echo -n "waiting ."
         while true; do
             echo -n "."
-            adb devices | grep -q "device$"
+            adb devices | grep -q "$ADB_DEV"
             if [ $? -eq 0 ]; then
                 echo
                 break
@@ -40,12 +86,65 @@ adb_waiting_dev() {
 #     done
 # }
 
-alias aroot="adb_waiting_dev; adb root"
-alias aremount="aroot; adb remount"
-alias ashell="adb_waiting_dev; adb shell"
-alias apush="adb_waiting_dev; adb push"
+alias aroot="adb_waiting_dev; adb_sn root"
+alias aremount="aroot; adb_sn remount"
+alias ashell="adb_waiting_dev; adb_sn shell"
+alias apush="adb_waiting_dev; adb_sn push"
+alias apull="adb_waiting_dev; adb_sn pull"
 alias adevices="adb devices"
-alias areboot="adb_waiting_dev; adb reboot"
+alias areboot="adb_waiting_dev; adb_sn reboot"
+
+adb_wait_for_boot_ok() {
+    # 定义常量
+    readonly POWER_KEY=26
+    readonly ENTER_KEY=98
+
+    if [ "$1" = "-s" ] && [ -n "$2" ]; then
+        ADB_SN="$2"
+        echo "set ADB_SN to $ADB_SN"
+    else
+        adb_sn_set
+    fi
+
+    echo "等待设备连接..."
+    soc_vendor=$(ashell getprop ro.soc.vendor)
+    echo "检测到设备: SOC厂商 = $soc_vendor"
+    sleep 1
+
+    # 根据SOC厂商读取亮度值
+    case $soc_vendor in
+        "qcom")
+            brightness=$(ashell cat /sys/class/backlight/panel0-backlight/brightness 2>/dev/null)
+            ashell "echo 160 > /sys/class/backlight/panel0-backlight/brightness"
+            ;;
+        "sprd")
+            brightness=$(ashell cat /sys/class/backlight/sprd_backlight/brightness 2>/dev/null)
+            ashell "echo 160 > /sys/class/backlight/sprd_backlight/brightness"
+            ;;
+        *)
+            echo "警告: 未知的SOC厂商: $soc_vendor"
+            brightness=0
+            ;;
+    esac
+
+    echo "亮度值: $brightness"
+    # echo "点亮屏幕..."
+    # ashell input keyevent KEYCODE_WAKEUP  # 或数字代码224[6,7](@ref)
+    # echo "模拟按键解锁..."
+    # ashell input keyevent $ENTER_KEY   # 可能误触发app
+
+    # 部分设备在锁屏时触发菜单键会自动点亮屏幕并显示解锁界面
+    ashell input keyevent 82  # 触发菜单键（KEYCODE_MENU）[1,2,7](@ref)
+    ashell input keyevent 82  # 触发菜单键（KEYCODE_MENU）[1,2,7](@ref)
+    ashell cmd media_session volume --stream 1 --set 0
+    ashell cmd media_session volume --stream 2 --set 0
+    ashell cmd media_session volume --stream 3 --set 0
+
+    # ashell settings put system screen_off_timeout 2147483647  # 约24.8天超时[1](@ref)
+
+    echo "设备启动完成"
+    return 0
+}
 
 pko() {
     adb_waiting_dev
@@ -183,16 +282,28 @@ rime_update() {
     ibus restart
 }
 
+cp_find_name() {
+    src=$1
+    name=$2
+    dst=$3
+
+    cp `find $src -name "$name"` $dst
+}
+
 export ENV_HELP="support functions:"
 export ENV_HELP=$ENV_HELP"
     - adb
-        - pko: adb push to /vendor_dlkm/lib/modules
-        - aremount: adb root and remount
-        - ashell: adb shell
-        - apush: adb push
-        - aroot: adb root
+        - adb_sn_set: set adb serial number
+        - adb_sn: adb with serial number
+        - adb_waiting_dev: wait for device
+        - pko: adb_sn push to /vendor_dlkm/lib/modules
+        - aremount: adb_sn root and remount
+        - ashell: adb_sn shell
+        - apush: adb_sn push
+        - aroot: adb_sn root
         - adevices: adb devices
-        - areboot: adb reboot
+        - areboot: adb_sn reboot
+        - adb_wait_for_boot_ok: wait for boot ok
     - fastboot
         - frf: fastboot reboot fastboot
         - ff: fastboot --disable-verity flash
@@ -208,6 +319,8 @@ export ENV_HELP=$ENV_HELP"
         - have_env_normal: show the current script
         - help: show this help
         - sync_env: pull this git
+        - cp_find_name: copy file with name
+            eg: cp_find_name src_dir name dst_dir
 "
 
 help() {
