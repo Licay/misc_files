@@ -75,3 +75,4 @@ wget https://dl.snipaste.com/linux-cn -O $LOCAL_DIR/Snipaste.AppImage
 chmod +x $LOCAL_DIR/Snipaste.AppImage
 $LOCAL_DIR/Snipaste.AppImage exit
 $LOCAL_DIR/Snipaste.AppImage &
+disown %1
