@@ -94,6 +94,49 @@ alias apull="adb_waiting_dev; adb_sn pull"
 alias adevices="adb devices"
 alias areboot="adb_waiting_dev; adb_sn reboot"
 
+adb_get_apk_path() {
+    local package_name="$1"
+    local apk_path=$(ashell pm path "$package_name" 2>/dev/null)
+
+    if [ -z "$apk_path" ] || ! echo "$apk_path" | grep -q "package:"; then
+        echo -e "未找到包名为 '$package_name' 的应用"
+        exit 1
+    fi
+
+    echo "${apk_path#package:}" # 去掉 "package:" 前缀
+}
+
+adb_pull_apk() {
+    local packages=("$@")
+    local output_dir="${packages[-1]}"
+
+    # echo "packages: ${packages[@]}"
+    # echo "output_dir: $output_dir"
+    if [ -z "$packages" ] || [ ! -d "$output_dir" ]; then
+        echo "用法: adb_pull_apk <包名1> [包名2]... <输出目录>"
+        return 1
+    fi
+
+    if [ "$ADB_SN" = "" ]; then
+        adb_sn_set
+    fi
+    adb_waiting_dev
+
+    for package_name in "${packages[@]:0:${#packages[@]}-1}"; do
+        if [ -z "$package_name" ]; then
+            continue
+        fi
+
+        apk_path=`adb_get_apk_path "$package_name"`
+        if [ $? -ne 0 ]; then
+            echo -e "获取包名 '$package_name' 的 APK 路径失败"
+            continue
+        fi
+        echo "正在从设备中拉取 APK: $apk_path"
+        apull "$apk_path" "$output_dir/$package_name.apk"
+    done
+}
+
 adb_wait_for_boot_ok() {
     # 定义常量
     readonly POWER_KEY=26
@@ -102,11 +145,10 @@ adb_wait_for_boot_ok() {
     if [ "$1" = "-s" ] && [ -n "$2" ]; then
         ADB_SN="$2"
         echo "set ADB_SN to $ADB_SN"
-    else
-        adb_sn_set
     fi
 
-    echo "等待设备连接..."
+    ashell uname -a
+
     soc_vendor=$(ashell getprop ro.soc.vendor)
     echo "检测到设备: SOC厂商 = $soc_vendor"
     sleep 1
