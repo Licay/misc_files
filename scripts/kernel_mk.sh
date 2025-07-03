@@ -23,10 +23,46 @@ M_PARAMS="LLVM=1 LD=ld.lld NM=llvm-nm OBJDUMP=llvm-objdump READELF=llvm-readelf 
 CROSS_COMPILE=
 ########################################################
 
-# export PATH=$PATH:${PREBUILTS_DIR}/linux-x86/clang-r487747c/bin
-# # pahole
-# export PATH=$PATH:${PREBUILTS_DIR}/build-tools/linux-x86/bin
-# export PATH=$PATH:${PREBUILTS_DIR}/aarch64-linux-android-4.9/bin
+# https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/platform/prebuilts/clang/host/linux-x86
+# https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/platform/prebuilts/build-tools
+# https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
+
+########################################################
+###### config that for build environment
+# TOOLCHAIN_BRANCH="main"
+# TOOLCHAIN_BRANCH="android-15.0.0_r0.2"
+TOOLCHAIN_BRANCH="llvm-r510928"
+PREBUILTS_DIR=./prebuilts-$TOOLCHAIN_BRANCH
+MIRROR="https://android.googlesource.com"
+# MIRROR="https://mirrors.tuna.tsinghua.edu.cn/git/AOSP"
+# MIRROR="https://mirrors.ustc.edu.cn/aosp"
+########################################################
+if [ "$setup" = "1" ]; then
+    echo "setup prebuilts"
+    mkdir -p $PREBUILTS_DIR
+    cd $PREBUILTS_DIR
+    if [ ! -d linux-x86 ]; then
+        # ${PREBUILTS_DIR}/linux-x86
+        git clone "$MIRROR/platform/prebuilts/clang/host/linux-x86" --depth=1 --branch=$TOOLCHAIN_BRANCH
+        rm -rf linux-x86/.git
+    fi
+    if [ ! -d build-tools ]; then
+        # ${PREBUILTS_DIR}/build-tools
+        git clone "$MIRROR/platform/prebuilts/build-tools" --depth=1 --branch=$TOOLCHAIN_BRANCH
+        rm -rf build-tools/.git
+    fi
+    if [ ! -d aarch64-linux-android-4.9 ]; then
+        # ${PREBUILTS_DIR}/aarch64-linux-android-4.9
+        git clone "$MIRROR/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9" --depth=1 --branch=main
+        rm -rf aarch64-linux-android-4.9/.git
+    fi
+    cd - >> /dev/null
+fi
+
+export PATH=$PATH:${PREBUILTS_DIR}/linux-x86/clang-r510928/bin
+# for pahole
+export PATH=$PATH:${PREBUILTS_DIR}/build-tools/linux-x86/bin
+export PATH=$PATH:${PREBUILTS_DIR}/aarch64-linux-android-4.9/bin
 
 err_input()
 {
