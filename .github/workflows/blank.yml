@@ -32,19 +32,17 @@ jobs:
 
       - name: Get repo
         run: |
-          mkdir ~/bin
-          PATH=~/bin:$PATH
-          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-          chmod a+x ~/bin/repo
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ./repo
+          chmod a+x ./repo
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
           mkdir WORKING_DIRECTORY
           cd WORKING_DIRECTORY
-          repo init -u https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/platform/manifest -b android-15.0.0_r1
-          repo sync
-          repo start --all ver_test
+          ./repo init -u https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/platform/manifest -b android-15.0.0_r1
+          ./repo sync
+          ./repo start --all ver_test
           find . -name "clang"
           find . -name "llvm-objdump"
           find . -name "aarch64-linux-android-4.9"
