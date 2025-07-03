@@ -28,7 +28,14 @@ jobs:
       - name: Set up env
         run: |
           sudo apt-get update
-          sudo apt-get install -y make gcc git build-essential libncurses-dev flex bison libssl-dev libelf-dev bc cpio xz-utils curl repo
+          sudo apt-get install -y make gcc git build-essential libncurses-dev flex bison libssl-dev libelf-dev bc cpio xz-utils curl
+
+      - name: Get repo
+        run: |
+          mkdir ~/bin
+          PATH=~/bin:$PATH
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod a+x ~/bin/repo
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
