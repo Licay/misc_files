@@ -113,11 +113,32 @@ P1="CROSS_COMPILE=$CROSS_COMPILE"
 
 P_CC="CC=$CC"
 
-alias sync_config="echo sync config file! ;cp $CONFIG_FILE $OUT_DIR/.config"
-alias m="make $P0 $P1 $P_CC $M_PARAMS"
-alias mmc="m menuconfig"
-alias ko="cd $WORK_DIR"
-alias mk="m -j`nproc`"
+sync_config() {
+    echo sync config file!
+    cp $CONFIG_FILE $OUT_DIR/.config
+}
+
+m() {
+    make $P0 $P1 $P_CC $M_PARAMS "$@"
+}
+
+mmc() {
+    m menuconfig
+}
+
+ko() {
+    cd $WORK_DIR
+}
+
+mk() {
+    m -j`nproc` "$@"
+}
+
+# alias sync_config="echo sync config file! ;cp $CONFIG_FILE $OUT_DIR/.config"
+# alias m="make $P0 $P1 $P_CC $M_PARAMS"
+# alias mmc="m menuconfig"
+# alias ko="cd $WORK_DIR"
+# alias mk="m -j`nproc`"
 
 __help()
 {
