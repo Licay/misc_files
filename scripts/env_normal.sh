@@ -4,6 +4,8 @@ THIS=`realpath $0`
 NAME=`basename $THIS`
 alias have_$NAME="echo 'you are using' $THIS"
 
+LOCAL_DIR=~/.local/bin
+
 export LTO=thin
 
 alias frf="fastboot reboot fastboot"
@@ -332,6 +334,8 @@ cp_find_name() {
     cp `find $src -name "$name"` $dst
 }
 
+alias notify_done="notify-send 'Command done!' 'The operation has been completed!\n$(date +'%Y-%m-%d %H:%M:%S')'"
+
 export ENV_HELP="support functions:"
 export ENV_HELP=$ENV_HELP"
     - adb
@@ -363,6 +367,7 @@ export ENV_HELP=$ENV_HELP"
         - sync_env: pull this git
         - cp_find_name: copy file with name
             eg: cp_find_name src_dir name dst_dir
+        - notify_done: notify user command done
 "
 
 help() {
