@@ -5,3 +5,12 @@
 本仓库记录一些个人使用的脚本、工具或过程记录等。
 
 有空再写哈
+
+# 快速配置env到本地
+
+```bash
+# install
+bash -c "$(curl -fsSL https://github.com/Licay/misc_files/raw/refs/heads/script_only/scripts/install_env.sh)"
+# remove
+bash -c "$(curl -fsSL https://github.com/Licay/misc_files/raw/refs/heads/script_only/scripts/install_env.sh) remove"
+```
