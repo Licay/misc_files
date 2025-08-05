@@ -27,6 +27,10 @@ CROSS_COMPILE=
 # https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/platform/prebuilts/build-tools
 # https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
 
+if [ -f ${BASH_SOURCE[0]}.pri ]; then
+    echo "--- load pri file ${BASH_SOURCE[0]}.pri ---"
+    source ${BASH_SOURCE[0]}.pri
+else
 ########################################################
 ###### config that for build environment
 # TOOLCHAIN_BRANCH="main"
@@ -57,6 +61,7 @@ if [ "$setup" = "1" ]; then
         rm -rf aarch64-linux-android-4.9/.git
     fi
     cd - >> /dev/null
+fi
 fi
 
 export PATH=$PATH:${PREBUILTS_DIR}/linux-x86/clang-r510928/bin

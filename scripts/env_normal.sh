@@ -4,6 +4,9 @@ THIS=`realpath $0`
 NAME=`basename $THIS`
 alias have_$NAME="echo 'you are using' $THIS"
 
+shell=`cat /proc/$$/cmdline`
+shell=`basename $shell`
+
 LOCAL_DIR=~/.local/bin
 
 export LTO=thin
@@ -184,7 +187,11 @@ adb_wait_for_boot_ok() {
     ashell cmd media_session volume --stream 2 --set 0
     ashell cmd media_session volume --stream 3 --set 0
 
-    # ashell settings put system screen_off_timeout 2147483647  # 约24.8天超时[1](@ref)
+    ashell settings put system screen_off_timeout 2147483647  # 约24.8天超时[1](@ref)
+    # 关闭自动旋转
+    ashell settings put system accelerometer_rotation 0
+    # ashell settings put system screen_brightness 8192
+    ashell settings put system screen_brightness 4096
 
     echo "设备启动完成"
     return 0
@@ -336,6 +343,17 @@ cp_find_name() {
 
 alias notify_done="notify-send 'Command done!' 'The operation has been completed!\n$(date +'%Y-%m-%d %H:%M:%S')'"
 
+env_resource() {
+    # shell=`basename $SHELL`
+    if [ -z "$shell" ]; then
+        echo "Error: Unable to determine the shell."
+        return 1
+    fi
+
+    echo "Resource environment for $shell..."
+    source ~/.${shell}rc
+}
+
 export ENV_HELP="support functions:"
 export ENV_HELP=$ENV_HELP"
     - adb
@@ -368,6 +386,7 @@ export ENV_HELP=$ENV_HELP"
         - cp_find_name: copy file with name
             eg: cp_find_name src_dir name dst_dir
         - notify_done: notify user command done
+        - env_resource: resource environment for current shell
 "
 
 help() {
