@@ -8,8 +8,8 @@
 #########################################################################
 ######################## config that
 # 两种验证二选一
-# username=""
-# password=""
+# username=
+# password=
 # credentials="username=$username,password=$password"
 credentials="credentials=/root/.smbcredentials"
 
@@ -20,7 +20,7 @@ nfs 172.16.11.12:/home/casey                              /mnt/service \n
 "
 
 if [ -f "`realpath $0`.pri" ]; then
-    echo "`realpath $0`.pri" exists, source it.
+    echo "--- `realpath $0`.pri exists, source it. ---"
     source "`realpath $0`.pri"
 fi
 
@@ -31,8 +31,8 @@ cow=`echo -e $m_list | awk '{print $2}'`
 
 check_dir() {
     if [ ! -d "$1" ]; then
-        echo "create dir $1"
-        mkdir $1
+        # echo "create dir $1"
+        sudo mkdir $1
     fi
 }
 
@@ -55,15 +55,17 @@ do
         m_cfg=`echo $tmp | awk '{print $4}'`
 		if [ "$1" == "remove" ]; then
 			echo $cnt umount $dir_dst
-			umount $dir_dst
+			sudo umount $dir_dst
 			continue
 		fi
         check_dir $dir_dst
         # echo mount -t $type -o $m_cfg $dir_src $dir_dst
         if [ $m_cfg ]; then
-            mount -t $type -o $m_cfg $dir_src $dir_dst
+            # echo mount -t $type -o $m_cfg $dir_src $dir_dst
+            sudo mount -t $type -o $m_cfg $dir_src $dir_dst
         else
-            mount -t $type $dir_src $dir_dst
+            # echo mount -t $type $dir_src $dir_dst
+            sudo mount -t $type $dir_src $dir_dst
         fi
         check_result $? $dir_src $dir_dst
     fi

@@ -9,18 +9,106 @@ shell=`basename $shell`
 
 LOCAL_DIR=~/.local/bin
 
+export ENV_HELP="support functions:"
+export ENV_HELP=$ENV_HELP"
+    - adb
+        - adb_sn_set: set adb serial number
+        - adb_sn: adb with serial number
+        - adb_waiting_dev: wait for device
+        - pko: adb_sn push to /vendor_dlkm/lib/modules
+        - aremount: adb_sn root and remount
+        - ashell: adb_sn shell
+        - apush: adb_sn push
+        - aroot: adb_sn root
+        - adevices: adb devices
+        - areboot: adb_sn reboot
+        - adb_wait_for_boot_ok: wait for boot ok
+    - fastboot
+        - frf: fastboot reboot fastboot
+        - ff: fastboot --disable-verity flash
+    - repo
+        - go_repo: navigate to the root of the repo
+        - repo_fix_project: fix the project's .git directory
+        - repo_go_project: go to the project's real directory
+    - rime
+        - rime_update: update rime register
+    - others
+        - reboot: for safe
+        - cp_code: copy code to a file
+        - have_env_normal: show the current script
+        - help: show this help
+        - sync_env: pull this git
+        - cp_find_name: copy file with name
+            eg: cp_find_name src_dir name dst_dir
+        - notify_done: notify user command done
+        - env_resource: resource environment for current shell
+"
+
+# { @protected_func }
+help() {
+    echo "$ENV_HELP"
+}
+alias h="help"
+
 export LTO=thin
 
 alias frf="fastboot reboot fastboot"
 alias ff="fastboot --disable-verity flash"
 
 export ADB_SN
+alias aroot="adb_waiting_dev; adb_sn root"
+alias aremount="aroot; adb_sn remount"
+alias ashell="adb_waiting_dev; adb_sn shell"
+alias apush="adb_waiting_dev; adb_sn push"
+alias apull="adb_waiting_dev; adb_sn pull"
+alias adevices="adb devices"
+alias areboot="adb_waiting_dev; adb_sn reboot"
+
+alias notify_done="notify-send 'Command done!' 'The operation has been completed!\n$(date +'%Y-%m-%d %H:%M:%S')'"
+
+if [ "$FUNC_FAST" = "" ]; then
+    export FUNC_FAST=1
+fi
+
+if [ "$FUNC_FAST" = "0" ]; then
+    cv2bin_path=`dirname $THIS`/../bin
+    cv2bin_path=`realpath $cv2bin_path`
+    if [ ! -d $cv2bin_path ]; then
+        # fast convert function to bin file
+        src_file=$THIS
+        dist_dir=$cv2bin_path
+        mkdir -p $dist_dir
+        func_list=$(grep -E '^[a-zA-Z_][a-zA-Z0-9_]*\s*\(\)\s*\{' $src_file | sed 's/() *{//' | tr -d ' ')
+
+        for func in `echo $func_list`; do
+            # "# { ... }" under the func, if "@protected_func" exist, ignore it
+            grep -A1 "^# {.*@protected_func.*}" $src_file | grep -q "^$func\s*()"
+            if [ $? -eq 0 ]; then
+                echo "ignore protected func: $func"
+                continue
+            fi
+
+            echo ">>> $func"
+            echo "#!/bin/zsh" > $dist_dir/$func
+            echo >> $dist_dir/$func
+
+            echo "export FUNC_FAST=1" >> $dist_dir/$func
+            echo "source $THIS" >> $dist_dir/$func
+            echo "$func \$@" >> $dist_dir/$func
+        done
+        chmod +x $dist_dir/*
+    fi
+    export PATH=$PATH:$cv2bin_path
+    return 0
+fi
+
+# { @protected_func }
 adb_sn_set() {
     local link_dev=($(adb devices | grep -v "List" | grep "device$" | awk '{print $1}'))
     local dev_count=${#link_dev[@]}
 
     if [ $dev_count -eq 1 ]; then
-        ADB_SN="${link_dev[1]}"
+        export ADB_SN="${link_dev[1]}"
         echo "set ADB_SN to $ADB_SN"
         return 0
     fi
@@ -36,9 +124,9 @@ adb_sn_set() {
     read -r num
 
     if [ "$num" = "" ]; then
-        ADB_SN=""
+        export ADB_SN=""
     else
-        ADB_SN=`echo $link_dev | awk -v num=$num '{print $num}'`
+        export ADB_SN=`echo $link_dev | awk -v num=$num '{print $num}'`
     fi
     echo "set ADB_SN to $ADB_SN"
 }
@@ -78,6 +166,16 @@ adb_waiting_dev() {
     fi
 }
 
+adb_swipe_while() {
+    local duration=${1:-300}  # 默认持续时间为300毫秒
+    local interval=${2:-3}  # 默认间隔时间为3000毫秒
+
+    while true; do
+        ashell input swipe 500 1500 500 500 $duration
+        sleep $interval
+    done
+}
+
 # ashell() {
 #     echo
 #     while true; do
@@ -90,14 +188,6 @@ adb_waiting_dev() {
 #         sleep 1
 #     done
 # }
-
-alias aroot="adb_waiting_dev; adb_sn root"
-alias aremount="aroot; adb_sn remount"
-alias ashell="adb_waiting_dev; adb_sn shell"
-alias apush="adb_waiting_dev; adb_sn push"
-alias apull="adb_waiting_dev; adb_sn pull"
-alias adevices="adb devices"
-alias areboot="adb_waiting_dev; adb_sn reboot"
 
 adb_get_apk_path() {
     local package_name="$1"
@@ -148,7 +238,7 @@ adb_wait_for_boot_ok() {
     readonly ENTER_KEY=98
 
     if [ "$1" = "-s" ] && [ -n "$2" ]; then
-        ADB_SN="$2"
+        export ADB_SN="$2"
         echo "set ADB_SN to $ADB_SN"
     fi
 
@@ -341,8 +431,6 @@ cp_find_name() {
     cp `find $src -name "$name"` $dst
 }
 
-alias notify_done="notify-send 'Command done!' 'The operation has been completed!\n$(date +'%Y-%m-%d %H:%M:%S')'"
-
 env_resource() {
     # shell=`basename $SHELL`
     if [ -z "$shell" ]; then
@@ -354,42 +442,45 @@ env_resource() {
     source ~/.${shell}rc
 }
 
-export ENV_HELP="support functions:"
-export ENV_HELP=$ENV_HELP"
-    - adb
-        - adb_sn_set: set adb serial number
-        - adb_sn: adb with serial number
-        - adb_waiting_dev: wait for device
-        - pko: adb_sn push to /vendor_dlkm/lib/modules
-        - aremount: adb_sn root and remount
-        - ashell: adb_sn shell
-        - apush: adb_sn push
-        - aroot: adb_sn root
-        - adevices: adb devices
-        - areboot: adb_sn reboot
-        - adb_wait_for_boot_ok: wait for boot ok
-    - fastboot
-        - frf: fastboot reboot fastboot
-        - ff: fastboot --disable-verity flash
-    - repo
-        - go_repo: navigate to the root of the repo
-        - repo_fix_project: fix the project's .git directory
-        - repo_go_project: go to the project's real directory
-    - rime
-        - rime_update: update rime register
-    - others
-        - reboot: for safe
-        - cp_code: copy code to a file
-        - have_env_normal: show the current script
-        - help: show this help
-        - sync_env: pull this git
-        - cp_find_name: copy file with name
-            eg: cp_find_name src_dir name dst_dir
-        - notify_done: notify user command done
-        - env_resource: resource environment for current shell
-"
+history_gp() {
+    if [ -z "$1" ]; then
+        echo "usage: history_gp <pattern>"
+        return 1
+    fi
 
-help() {
-    echo "$ENV_HELP"
+    history | grep --color=auto "$1"
 }
-alias h="help"
+
+convert_func2bin() {
+    if [ $# -lt 2 ]; then
+        echo "usage: convert_func2bin <source_file> <dist_dir>"
+        return 1
+    fi
+
+    src_file=$1
+    dist_dir=$2
+    mkdir -p $dist_dir
+    func_list=$(grep -E '^[a-zA-Z_][a-zA-Z0-9_]*\s*\(\)\s*\{' $src_file | sed 's/() *{//' | tr -d ' ')
+
+    for func in `echo $func_list`; do
+        # "# { ... }" under the func, if "@protected_func" exist, ignore it
+        grep -A1 "^# {.*@protected_func.*}" $src_file | grep -q "^$func\s*()"
+        if [ $? -eq 0 ]; then
+            echo "ignore protected func: $func"
+            continue
+        fi
+
+        echo ">>> $func"
+        echo "#!/bin/zsh" > $dist_dir/$func
+        # copy "{ * }" to bin file
+        echo >> $dist_dir/$func
+        echo "this_func() {" >> $dist_dir/$func
+        sed -n "/^$func\s*()/,/^}/p" $src_file | sed '1d;$d' >> $dist_dir/$func
+        echo "}" >> $dist_dir/$func
+
+        echo >> $dist_dir/$func
+        echo "this_func \$@" >> $dist_dir/$func
+
+        chmod +x $dist_dir/$func
+    done
+}

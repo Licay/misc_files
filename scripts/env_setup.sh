@@ -20,16 +20,19 @@ gnome-tweaks gnome-shell-extension-manager \
 ibus-rime
 
 # for kernel build
-# sudo apt install \
-# libncurses-dev flex bison libssl-dev libelf-dev bc cpio xz-utils
+# sudo apt install -y \
+# git gcc make repo vim less tree \
+# libncurses-dev flex bison libssl-dev libelf-dev libusb-dev bc cpio xz-utils rsync uuid-dev libc6-dev gcc-multilib libxml2-dev
 
 # 输入法 不要使用sudo
 git clone --depth 1 https://github.com/gaboolic/rime-frost ~/.config/ibus/rime
 # 以下为自用配置，需要更改自行打开~/.config/ibus/rime/default.yaml查看
 RIME_DEF_CONFIG=~/.config/ibus/rime/default.yaml
-sed -i '/schema:/ s/^/#/' $RIME_DEF_CONFIG
-sed -i '/schema_list:/a\  - schema: double_pinyin          # 自然码双拼\
-  - schema: rime_ice               # 雾凇拼音（全拼）' $RIME_DEF_CONFIG
+# !! use F4 to switch schema
+# !! 默认不修改 schema，使用 F4 切换输入法方案
+# sed -i '/schema:/ s/^/#/' $RIME_DEF_CONFIG
+# sed -i '/schema_list:/a\  - schema: double_pinyin          # 自然码双拼\
+#   - schema: rime_ice               # 雾凇拼音（全拼）' $RIME_DEF_CONFIG
 sed -i 's/page_size: [0-9]*/page_size: 6/' $RIME_DEF_CONFIG
 
 # docker

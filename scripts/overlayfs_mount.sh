@@ -27,7 +27,9 @@ case $ACTION in
         fi
         echo "挂载 overlayfs 到 $MOUNT_POINT ..."
         mkdir -p "$MOUNT_POINT"
-        mount -t overlay overlay -o lowerdir="$LOWER_DIR",upperdir="$UPPER_DIR",workdir="$UPPER_DIR.work" "$MOUNT_POINT"
+        mkdir -p "$UPPER_DIR/ovl.up"
+        mkdir -p "$UPPER_DIR/ovl.work"
+        sudo mount -t overlay overlay -o lowerdir="$LOWER_DIR",upperdir="$UPPER_DIR/ovl.up",workdir="$UPPER_DIR/ovl.work" "$MOUNT_POINT"
         if [ $? -eq 0 ]; then
             echo "挂载成功!"
         else
@@ -36,7 +38,7 @@ case $ACTION in
         ;;
     umount)
         echo "卸载 $MOUNT_POINT ..."
-        umount "$MOUNT_POINT"
+        sudo umount "$MOUNT_POINT"
         if [ $? -eq 0 ]; then
             echo "卸载成功!"
         else
