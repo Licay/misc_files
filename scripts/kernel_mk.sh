@@ -64,10 +64,15 @@ if [ "$setup" = "1" ]; then
 fi
 fi
 
-export PATH=$PATH:${PREBUILTS_DIR}/linux-x86/clang-r510928/bin
+# export PATH=$PATH:${PREBUILTS_DIR}/linux-x86/clang-r510928/bin
+export PATH=$PATH:${PREBUILTS_DIR}/linux-x86/clang-r547379/bin
 # for pahole
 export PATH=$PATH:${PREBUILTS_DIR}/build-tools/linux-x86/bin
 export PATH=$PATH:${PREBUILTS_DIR}/aarch64-linux-android-4.9/bin
+
+export HOSTCFLAGS="-I$PREBUILTS_DIR/build-tools/linux-x86/include/"
+export HOSTLDFLAGS="-L$PREBUILTS_DIR/build-tools/linux-x86/lib64"
+export LD_LIBRARY_PATH=$PREBUILTS_DIR/build-tools/linux-x86/lib64:$LD_LIBRARY_PATH
 
 err_input()
 {
@@ -89,9 +94,12 @@ echo "start $1 check!"
 KER_DIR=$(realpath $1)
 CONFIG_FILE=$(realpath $2)
 
-if [ "$WORK_DIR" == "" ]; then
+WORK_DIR=
+if [ "$W" == "" ]; then
     WORK_DIR=/tmp/kernel.`date +"%Y-%m-%d.%H_%m_%S"`
     echo "create work dir $WORK_DIR"
+else
+    WORK_DIR=$WORK_DIR
 fi
 
 OUT_DIR=$WORK_DIR/out

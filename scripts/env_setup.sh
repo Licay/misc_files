@@ -22,7 +22,7 @@ ibus-rime
 # for kernel build
 # sudo apt install -y \
 # git gcc make repo vim less tree \
-# libncurses-dev flex bison libssl-dev libelf-dev libusb-dev bc cpio xz-utils rsync uuid-dev libc6-dev gcc-multilib libxml2-dev
+# libncurses-dev libdw-dev flex bison libssl-dev libelf-dev libusb-dev bc cpio xz-utils rsync uuid-dev libc6-dev gcc-multilib libxml2-dev python3
 
 # 输入法 不要使用sudo
 git clone --depth 1 https://github.com/gaboolic/rime-frost ~/.config/ibus/rime
